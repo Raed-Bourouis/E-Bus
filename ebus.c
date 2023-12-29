@@ -97,12 +97,12 @@ int make_reservation(){
     while (btemp != NULL) {
         if (btemp->vehicle.id == tempo.b.id) {
             tempo.b.tarif = btemp->vehicle.tarif;
+            btemp->vehicle.dispo--;
             break;
         }
         btemp = btemp->next;
     }
     tempo.prix=(tempo.b.tarif)*tempo.dur;
-    printf("%d", tempo.prix);
     tempo.id=global_counter;
     global_counter++;
     last->book=tempo;
@@ -126,7 +126,7 @@ void see_fleet(){
     else{
         buss *aux=fleet;
         while(aux!=NULL){
-            if(aux->vehicle.dispo!=0) printf("Identifiant: %i      || Capacité: %i      || Disponibilite: %i      || Tarif/jour: %i DT\n", aux->vehicle.id, aux->vehicle.cap,aux->vehicle.dispo, aux->vehicle.tarif);
+            if(aux->vehicle.dispo!=0) printf("Identifiant: %i      || Capacite: %i      || Disponibilite: %i      || Tarif/jour: %i DT\n", aux->vehicle.id, aux->vehicle.cap,aux->vehicle.dispo, aux->vehicle.tarif);
             aux=aux->next;
         }
     }
@@ -155,6 +155,15 @@ int modify_reservation(){
     if(aux->book.id==mod_id){
             printf("Veuillez choisir un bus: "); scanf("%i",&aux->book.b.id);
             printf("Veuillez taper la date debut et la duree (en jours) de votre reservation: "); scanf("%s %i",&aux->book.deb,&aux->book.dur);
+            buss *btemp = fleet;
+            while (btemp != NULL) {
+                if (btemp->vehicle.id == aux->book.b.id) {
+                    aux->book.b.tarif = btemp->vehicle.tarif;
+                    btemp->vehicle.dispo--;
+                    break;
+                }
+                btemp = btemp->next;
+            }
             aux->book.prix=(aux->book.b.tarif)*aux->book.dur;
             return 0;
     }
@@ -297,17 +306,7 @@ void read_fleet() {
     fclose(fbus);
 }
 
-void see_users() {
-    voys *current = accounts;
-    if (current == NULL) {
-        printf("Aucun Utilisateur inscrit\n");
-        return;
-    }
-    while (current != NULL) {
-        printf("Nom: %s      ||Numero cin: %i\n", current->client.name, current->client.cin);
-        current = current->next;
-}
-}
+
 
 void write_fleet() {
     fbus = fopen("fleet.bin", "wb");
@@ -370,6 +369,18 @@ void add_bus(){
         }
         aux->next=last;
     }
+}
+
+void see_users() {
+    voys *current = accounts;
+    if (current == NULL) {
+        printf("Aucun Utilisateur inscrit\n");
+        return;
+    }
+    while (current != NULL) {
+        printf("Nom: %s      ||Numero cin: %i\n", current->client.name, current->client.cin);
+        current = current->next;
+}
 }
 
 int main(){
